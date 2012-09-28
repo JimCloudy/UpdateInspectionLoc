@@ -1,0 +1,123 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="#333"
+        android:textSize="30sp"
+        android:text="@string/title"/>
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  	  android:layout_height="wrap_content" android:orientation="vertical"
+      android:layout_width="match_parent" android:layout_weight=".1">
+
+        <TextView 
+        	android:layout_height="wrap_content"
+        	android:layout_width="wrap_content"
+	       	android:id="@+id/textInspectionPolicy" 
+	       	android:text="@string/textPolicy"
+        	android:textStyle="bold" 
+        	android:textSize="20sp"/>
+    	
+    	<TextView 
+    		android:layout_width="wrap_content"
+    	 	android:layout_height="wrap_content"
+    	 	android:id="@+id/textInspectionInsured"
+    	  	android:text="@string/textInsured"
+    	   	android:textSize="20sp"/>
+    	
+    	<TextView 
+    		android:layout_width="wrap_content"
+    	 	android:layout_height="wrap_content"
+    	 	android:id="@+id/textInspectionInsured2"
+    	  	android:text="@string/textInsured2"
+    	   	android:textSize="20sp"/>
+
+    	<TextView 
+       		android:layout_height="wrap_content"
+        	android:layout_width="match_parent" 
+        	android:id="@+id/textInspectionAddress"
+        	android:text="@string/textAddress"
+        	android:textSize="20sp"/>
+    	
+    	<TextView 
+       		android:layout_height="wrap_content"
+        	android:layout_width="match_parent" 
+        	android:id="@+id/textInspectionAddress2"
+        	android:text="@string/textAddress2"
+        	android:textSize="20sp"/>
+    	
+    	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	  xmlns:tools="http://schemas.android.com/tools"
+    	  android:layout_width="match_parent"
+    	  android:layout_height="wrap_content" 
+    	  android:background="#fff"
+    	  android:orientation="horizontal">
+    		<TextView 
+       			android:layout_height="wrap_content"
+        		android:layout_width="wrap_content" 
+        		android:id="@+id/textInspectionCitySt"
+        		android:text="@string/textCitySt"
+        		android:textSize="20sp"/>
+    		
+    		<TextView 
+       			android:layout_height="wrap_content"
+        		android:layout_width="wrap_content"
+        		android:layout_marginLeft="20sp" 
+        		android:id="@+id/textInspectionZip"
+        		android:text="@string/textZip"
+        		android:textSize="20sp"/>
+    		
+    		
+    	</LinearLayout>
+    	
+    		<TextView 
+       			android:layout_height="wrap_content"
+        		android:layout_width="match_parent" 
+        		android:id="@+id/textInspectionPhone"
+        		android:text="@string/textPhone"
+        		android:textSize="20sp"/>
+
+	</LinearLayout>
+    
+    <TextView
+            android:textColor="#333"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:textSize="25dp"
+            android:text="@string/textLoc"
+            android:id="@+id/textLoc"
+            android:layout_weight=".8">
+    </TextView>
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	xmlns:tools="http://schemas.android.com/tools"
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content" 
+    	android:background="#fff"
+    	android:orientation="horizontal">
+	    	<Button 
+    	    android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+    		android:layout_weight=".5"        	
+	        android:name="buttonGetLoc"
+        	android:text="@string/textGetLoc"
+        	android:id="@+id/buttonGetLoc"/>
+    
+    	<Button 
+      	    android:layout_width="wrap_content"
+       		android:layout_height="wrap_content"
+    		android:layout_weight=".5"       	 	
+        	android:name="buttonSendLoc"
+        	android:text="@string/textSendLoc"
+        	android:id="@+id/buttonSendLoc"/>
+	</LinearLayout>
+</LinearLayout>

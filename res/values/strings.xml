@@ -1,0 +1,26 @@
+<resources>
+
+    <string name="app_name">Inspection Update</string>
+    <string name="title">Policy For Inspection</string>
+    <string name="menu_settings">Settings</string>
+    
+    <string name="title_activity_inspection">Inspection Policy</string>
+    <string name="title_activity_inspection_list">Inspection List</string>
+    <string name="title_application">Location Update</string>
+    
+    <string name="titleInspections">Inspections</string>
+    <string name="titleInspectionList">Current Inspections</string>
+    
+    <string name="textGetLoc">Get Location</string>
+    <string name="textSendLoc">Update Location</string>
+    <string name="textLoc">Click \"Update Location\" to get current location.</string>
+    <string name="textPolicy">Policy</string>
+    <string name="textAddress">Address</string>
+    <string name="textAddress2">Address</string>
+    <string name="textInsured">Insured</string>
+    <string name="textInsured2">Insured</string>
+    <string name="textCitySt">Marshall, MN</string>
+    <string name="textZip">56258</string>
+    <string name="textPhone">(507)828-7214</string>
+
+</resources>
