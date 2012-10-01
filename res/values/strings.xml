@@ -10,9 +10,10 @@
     
     <string name="titleInspections">Inspections</string>
     <string name="titleInspectionList">Current Inspections</string>
+    <string name="titleLocationMap">Map Of Location</string>
     
-    <string name="textGetLoc">Get Location</string>
-    <string name="textSendLoc">Update Location</string>
+    <string name="textUpdateLoc">Update Location</string>
+    <string name="textSendLoc">Send Location</string>
     <string name="textLoc">Click \"Update Location\" to get current location.</string>
     <string name="textPolicy">Policy</string>
     <string name="textAddress">Address</string>

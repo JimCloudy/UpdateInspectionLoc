@@ -1,7 +1,5 @@
 package com.jimcloudy.updateinspectionloc;
 
-import com.jimcloudy.updateinspectionloc.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;

@@ -27,6 +27,13 @@
             android:name="com.jimcloudy.updateinspectionloc.Inspection"
             android:label="@string/title_activity_inspection" >
         </activity>
+        <activity
+            android:name=".LocationMap"
+            android:label="@string/titleLocationMap" 
+            android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
+        
+        <uses-library android:name="com.google.android.maps"/>
         <service 
             android:name=".SendCoords" />
         <service 

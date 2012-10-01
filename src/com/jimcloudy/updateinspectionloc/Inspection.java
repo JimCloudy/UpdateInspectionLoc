@@ -1,7 +1,5 @@
 package com.jimcloudy.updateinspectionloc;
 
-import com.jimcloudy.updateinspectionloc.R;
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,11 +18,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.maps.GeoPoint;
+
 public class Inspection extends Activity implements LocationListener, OnClickListener{
 
 	public final String TAG = "Inspection";
 	LocationManager locationManager;
-	Location lastLocation;
+	Location curLocation;
 	Geocoder geocoder;
 	TextView textLoc;
 	TextView textPolicy;
@@ -37,13 +37,14 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
 	Button sendLoc;
 	InspectionData inspectionData;
 	Bundle extras;
+	boolean checkedLoc;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        getLoc = (Button) findViewById(R.id.buttonGetLoc);
+        getLoc = (Button) findViewById(R.id.buttonUpdateLoc);
         getLoc.setOnClickListener(this);
         sendLoc = (Button) findViewById(R.id.buttonSendLoc);
         sendLoc.setOnClickListener(this);
@@ -70,6 +71,8 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
         Criteria criteria = new Criteria();
         //provider = this.locationManager.getBestProvider(criteria, false);
         provider = LocationManager.GPS_PROVIDER;
+        this.curLocation = null;
+        this.checkedLoc = false;
     }
     
     @Override
@@ -78,24 +81,27 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
     }
     
     public void onClick(View v){
-    	if(v.getId() == R.id.buttonGetLoc){
-    		this.lastLocation = this.locationManager.getLastKnownLocation(provider);
-    		if(this.lastLocation != null){
-    			String text = String.format("LAT:\t %f\nLONG:\t %f", this.lastLocation.getLatitude(),this.lastLocation.getLongitude());
-    			textLoc.setText(text);
+    	if(v.getId() == R.id.buttonUpdateLoc){
+    		//this.lastLocation = this.locationManager.getLastKnownLocation(provider);
+    		if(this.curLocation != null){
+    			this.checkedLoc = true;
+    			Intent i = new Intent(this,LocationMap.class);
+    			i.putExtra("lat", this.curLocation.getLatitude());
+    			i.putExtra("long", this.curLocation.getLongitude());
+    			startActivity(i);
     		}
     		else{
     			textLoc.setText("Location not available");
     		}
     	}
     	if(v.getId() == R.id.buttonSendLoc){
-    		if(this.lastLocation == null){
+    		if(this.curLocation != null && this.checkedLoc == true){
     			this.inspectionData = new InspectionData(this);
     			String[] policy = new String[]{this.extras.getString("policy")};
     			ContentValues values = new ContentValues();
-    			values.put(InspectionData.C_LAT, this.lastLocation.getLatitude());
+    			values.put(InspectionData.C_LAT, this.curLocation.getLatitude());
     			//values.put(InspectionData.C_LAT, "44.601656");
-    			values.put(InspectionData.C_LONG, this.lastLocation.getLongitude());
+    			values.put(InspectionData.C_LONG, this.curLocation.getLongitude());
     			//values.put(InspectionData.C_LONG, "-95.678194");
     			if(this.inspectionData.updateInspectionByPolicy(policy, values)){
     				startService(new Intent(this,SendCoords.class));
@@ -115,7 +121,7 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
     @Override
     public void onResume(){
     	super.onRestart();
-    	this.locationManager.requestLocationUpdates(provider, 1000, 10, this);
+    	this.locationManager.requestLocationUpdates(provider, 1000, 1, this);
     	//locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, this);
     }
 
@@ -126,7 +132,10 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
     }
     
     //@Override
-    public void onLocationChanged(Location location){    	
+    public void onLocationChanged(Location location){
+    	this.curLocation = location;
+    	String text = String.format("LAT:\t %f\nLONG:\t %f", this.curLocation.getLatitude(),this.curLocation.getLongitude());
+		textLoc.setText(text);
     }
     
     public void onProviderDisabled(String provider){

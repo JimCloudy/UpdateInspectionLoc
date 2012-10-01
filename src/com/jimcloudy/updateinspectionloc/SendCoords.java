@@ -7,8 +7,6 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -26,7 +24,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Xml;
 
 public class SendCoords extends Service {
@@ -71,16 +68,16 @@ public class SendCoords extends Service {
 	    @Override
 	    public void run() {
 	    	SendCoords sendCoords = SendCoords.this;
-	    	String query = "hello";
+	    	String query = sendCoords.updater.writeXml();
 	    	String result = null;
-	    	XPath xpath = XPathFactory.newInstance().newXPath();
-	    	String expression;
     		result = callWebService(query);
-    		
+    	
     		if(result != null)
     		{
     			inspectionData.deleteUpdatedInspections();
     		}
+    		
+    		
 	  }
 	    
 	    public String callWebService(String q){  
