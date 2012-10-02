@@ -14,12 +14,13 @@ import com.google.android.maps.OverlayItem;
 
 public class LocationMap extends MapActivity{ 
 	Bundle extras;
+	MapView mapView;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	setContentView(R.layout.location_map);
-    	MapView mapView = (MapView) findViewById(R.id.mapview);
+    	mapView = (MapView) findViewById(R.id.mapview);
     	mapView.setBuiltInZoomControls(true);
     	List<Overlay> mapOverlays = mapView.getOverlays();
     	Drawable drawable = this.getResources().getDrawable(R.drawable.pin);
@@ -29,7 +30,7 @@ public class LocationMap extends MapActivity{
     		int LAT = (int)(this.extras.getDouble("lat") * 1e6);
     		int LONG = (int)(this.extras.getDouble("long") * 1e6);
     		GeoPoint point = new GeoPoint(LAT,LONG);
-        	OverlayItem overlayitem = new OverlayItem(point, "Hola, Mundo!", "I'm in Mexico City!");
+        	OverlayItem overlayitem = new OverlayItem(point, "Inspection Map", "Current Location");
         	itemizedoverlay.addOverlay(overlayitem);
         	mapOverlays.add(itemizedoverlay);
         	MapController mc = mapView.getController();
@@ -37,7 +38,7 @@ public class LocationMap extends MapActivity{
         	mc.setZoom(17);    		
     	}
 	}
-
+	
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;

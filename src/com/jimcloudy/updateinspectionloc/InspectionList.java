@@ -18,6 +18,7 @@ public class InspectionList extends Activity{
 	Cursor cursor;
 	SimpleCursorAdapter adapter;
 	InspectionApplication app;
+	int selected;
 	
 	
 	static final String[] FROM = { InspectionData.C_ID, InspectionData.C_NAME, InspectionData.C_NAME2 };
@@ -35,6 +36,7 @@ public class InspectionList extends Activity{
             startService(new Intent(this,GetInspections.class));
             app.setGetInspectionRunning(true);
         }
+        selected = 0;
     }
 	
 	@Override
@@ -62,6 +64,13 @@ public class InspectionList extends Activity{
     	
     	listInspectionList.setAdapter(adapter);
     	
+    	if(selected < adapter.getCount()){
+    		listInspectionList.setSelection(selected);
+    	}
+    	else{
+    		listInspectionList.setSelection(selected-1);
+    	}
+    	
     	listInspectionList.setOnItemClickListener(new OnItemClickListener() {
     		   public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
     		    Cursor row = (Cursor) parent.getItemAtPosition(position);
@@ -70,26 +79,31 @@ public class InspectionList extends Activity{
     		    String name2 = row.getString(row.getColumnIndex("name2"));
     		    String address = row.getString(row.getColumnIndex("address"));
     		    String address2= row.getString(row.getColumnIndex("address2"));
+    		    String cityst = row.getString(row.getColumnIndex("cityst"));
+    		    String zip = row.getString(row.getColumnIndex("zip"));
+    		    String phone = row.getString(row.getColumnIndex("phone"));    	
     		    Intent i = new Intent(getApplicationContext(),Inspection.class);
     		    i.putExtra("policy", policy);
     		    i.putExtra("name", name);
     		    i.putExtra("name2", name2);    		    
     		    i.putExtra("address", address);
     		    i.putExtra("address2", address2);
+    		    i.putExtra("cityst", cityst);
+    		    i.putExtra("zip",zip);
+    		    i.putExtra("phone", phone);
     		    startActivity(i);
+    		    selected = position;
     		   }
     		  });
     }
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { 
-    	startActivity(new Intent(this,Inspection.class));
     	return true;
     }
 

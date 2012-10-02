@@ -26,15 +26,17 @@ import org.xml.sax.SAXException;
 
 import android.app.Service;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.telephony.TelephonyManager;
 
 public class GetInspections extends Service {
 	  private static final String TAG = "GetInspections";
 	  private InspectionsUpdater updater;
 	  public static String URL = "http://jimcloudy.comze.com/update.php?q=";
 	  HttpResponse result;
-	  static final int DELAY = 60000; 
+	  static final int DELAY = 300000; 
 	  private boolean runFlag = false;
 	  InspectionData inspectionData;
 	 
@@ -83,11 +85,12 @@ public class GetInspections extends Service {
 	    	String result = null;
 	    	XPath xpath = XPathFactory.newInstance().newXPath();
 	    	String expression;
+	    	TelephonyManager phone = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 	    	
 	    	
 	    	while(getInspections.runFlag){
 	    		try{
-	    			result = callWebService(query);
+	    			result = callWebService(phone.getLine1Number());
 	    			if(result != null)
 	    			{
 	    				Document doc = xmlFromString(result);	    				
@@ -99,29 +102,44 @@ public class GetInspections extends Service {
 	    					for(int i=0; i<resultNodes.getLength(); i++){
 	    						xpath = XPathFactory.newInstance().newXPath();
 	    						expression = "policy";
-	    						Node policyNode = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						String policy = policyNode.getTextContent();
+	    						Node node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						String content = node.getTextContent();
+	    						values.put(InspectionData.C_ID, content);
 	    						xpath = XPathFactory.newInstance().newXPath();
 	    						expression = "name1";
-	    						Node nameNode = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						String name = nameNode.getTextContent();
+	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						content = node.getTextContent();
+	    						values.put(InspectionData.C_NAME, content);
 	    						xpath = XPathFactory.newInstance().newXPath();
 	    						expression = "name2";
-	    						Node name2Node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						String name2 = name2Node.getTextContent();
+	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						content = node.getTextContent();
+	    						values.put(InspectionData.C_NAME2, content);
 	    						xpath = XPathFactory.newInstance().newXPath();
 	    						expression = "address1";
-	    						Node addressNode = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						String address = addressNode.getTextContent();
+	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						content = node.getTextContent();
+	    						values.put(InspectionData.C_ADDRESS, content);
 	    						xpath = XPathFactory.newInstance().newXPath();
 	    						expression = "address2";
-	    						Node address2Node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						String address2 = address2Node.getTextContent();
-	    						values.put(InspectionData.C_ID, policy);
-	    						values.put(InspectionData.C_NAME, name);
-	    						values.put(InspectionData.C_NAME2, name2);
-	    						values.put(InspectionData.C_ADDRESS, address);
-	    						values.put(InspectionData.C_ADDRESS2, address2);
+	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						content = node.getTextContent();
+	    						values.put(InspectionData.C_ADDRESS2, content);
+	    						xpath = XPathFactory.newInstance().newXPath();
+	    						expression = "cityst";
+	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						content = node.getTextContent();
+	    						values.put(InspectionData.C_CITYST, content);
+	    						xpath = XPathFactory.newInstance().newXPath();
+	    						expression = "zip";
+	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						content = node.getTextContent();
+	    						values.put(InspectionData.C_ZIP, content);
+	    						xpath = XPathFactory.newInstance().newXPath();
+	    						expression = "phone";
+	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+	    						content = node.getTextContent();
+	    						values.put(InspectionData.C_PHONE, content);
 	    						if(getInspections.inspectionData != null){
 	    							getInspections.inspectionData.insertOrIgnore(values);
 	    						}

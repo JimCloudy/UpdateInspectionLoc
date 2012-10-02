@@ -3,19 +3,31 @@ package com.jimcloudy.updateinspectionloc;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlSerializer;
@@ -24,12 +36,13 @@ import android.app.Service;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.IBinder;
+import android.util.Log;
 import android.util.Xml;
 
 public class SendCoords extends Service {
 	  private static final String TAG = "SendCoords";
 	  private CoordsUpdater updater;
-	  public static String URL = "http://jimcloudy.comze.com/update.php?q=";
+	  public static String URL = "https://quote.nstarco.com/public/default.asp?Category=NS_Public_Test&Service=Update_Inspections";
 	  HttpResponse result;
 	  InspectionData inspectionData;
 
@@ -68,29 +81,69 @@ public class SendCoords extends Service {
 	    @Override
 	    public void run() {
 	    	SendCoords sendCoords = SendCoords.this;
-	    	String query = sendCoords.updater.writeXml();
+	    	String query = writeXml();
 	    	String result = null;
-    		result = callWebService(query);
-    	
+	    	String expression;
+	    	XPath xpath = XPathFactory.newInstance().newXPath();
+	    	
+	    	if(query!=null)
+	    	{
+	    		result = callWebService(query);
+	    	}
+	    	
     		if(result != null)
     		{
-    			inspectionData.deleteUpdatedInspections();
-    		}
-    		
-    		
+    			Document doc = xmlFromString(result);	    				
+    			expression = "/inspections/inspection";
+    			try{
+    				NodeList resultNodes = (NodeList)xpath.evaluate(expression, doc ,XPathConstants.NODESET);
+					List<String> policies = new ArrayList<String>();
+					for(int i=0; i<resultNodes.getLength(); i++){
+						xpath = XPathFactory.newInstance().newXPath();
+						expression = "policy";
+						Node policyNode = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+						String policy = policyNode.getTextContent();
+						xpath = XPathFactory.newInstance().newXPath();
+						expression = "updated";
+						Node updatedNode = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
+						String updated = updatedNode.getTextContent();
+						if(updated.equals("true")){
+							policies.add(policy);
+							Log.i("send coords ",policy);
+						}
+						else{
+							Log.i("send coords",updated + " why");
+						}
+						
+					}
+					if(sendCoords.inspectionData != null){
+						if(policies.size()!=0){
+							sendCoords.inspectionData.deleteUpdatedInspections(policies);
+						}
+					}
+    			}
+    			catch(XPathExpressionException	e){
+					e.printStackTrace();
+				}
+				catch(RuntimeException e){
+					e.printStackTrace();
+				}
+    		}    		
 	  }
 	    
 	    public String callWebService(String q){  
 	        HttpClient httpclient = new DefaultHttpClient();
-	        //HttpGet request = new HttpGet(URL + q);
-	        HttpPost request = new HttpPost("http://jimcloudy.comze.com/test.xml");
+	        HttpPost request = new HttpPost(URI.create(URL));
 	        HttpEntity httpEntity;
 	        String line = null;
+	        HttpResponse response;
 	     
-	        //ResponseHandler<String> handler = new BasicResponseHandler();  
-	        try {
-	            result = httpclient.execute(request);
-	            httpEntity = result.getEntity();
+	        try{
+	        	List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(1);
+	        	nameValuePair.add(new BasicNameValuePair("m-inspect",q));
+	        	request.setEntity(new UrlEncodedFormEntity(nameValuePair));
+	            response = httpclient.execute(request);
+	            httpEntity = response.getEntity();
 	            line = EntityUtils.toString(httpEntity);
 	        } 
 	        catch (ClientProtocolException e) {  
@@ -137,9 +190,8 @@ public class SendCoords extends Service {
 	  	        	serializer.setOutput(writer);
 	  	        	serializer.startDocument("UTF-8", true);
 	  	        	serializer.startTag("", "inspections");
-	  	        	serializer.attribute("", "number", cursor.getString(cursor.getCount()));
 	  	        	cursor.moveToFirst();
-	  	        	while(cursor.isAfterLast()){
+	  	        	while(!cursor.isAfterLast()){
 	  	        		serializer.startTag("", "inspection");
 	  	        		serializer.startTag("", "policy");
 	  	        		serializer.text(cursor.getString(cursor.getColumnIndex("_id")));

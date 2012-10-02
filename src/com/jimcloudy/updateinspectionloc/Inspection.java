@@ -18,8 +18,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.maps.GeoPoint;
-
 public class Inspection extends Activity implements LocationListener, OnClickListener{
 
 	public final String TAG = "Inspection";
@@ -32,6 +30,9 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
 	TextView textInsured2;
 	TextView textAddress;
 	TextView textAddress2;
+	TextView textCitySt;
+	TextView textZip;
+	TextView textPhone;
 	String provider;
 	Button getLoc;
 	Button sendLoc;
@@ -55,6 +56,9 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
         textInsured2 = (TextView) findViewById(R.id.textInspectionInsured2);
         textAddress = (TextView) findViewById(R.id.textInspectionAddress);
         textAddress2 = (TextView) findViewById(R.id.textInspectionAddress2);
+        textCitySt = (TextView) findViewById(R.id.textInspectionCitySt);
+        textZip = (TextView) findViewById(R.id.textInspectionZip);
+        textPhone = (TextView) findViewById(R.id.textInspectionPhone);
         this.extras = getIntent().getExtras();
         if(extras!=null){
         	textPolicy.setText(this.extras.getString("policy"));
@@ -62,6 +66,9 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
         	textInsured2.setText(this.extras.getString("name2"));
         	textAddress.setText(this.extras.getString("address"));
         	textAddress2.setText(this.extras.getString("address2"));
+        	textCitySt.setText(this.extras.getString("cityst"));
+        	textZip.setText(this.extras.getString("zip"));
+        	textPhone.setText(this.extras.getString("phone"));
         }
         
         this.locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -69,8 +76,9 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
         geocoder = new Geocoder(this);
         
         Criteria criteria = new Criteria();
-        //provider = this.locationManager.getBestProvider(criteria, false);
-        provider = LocationManager.GPS_PROVIDER;
+        //criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        provider = this.locationManager.getBestProvider(criteria, false);
+        //provider = LocationManager.GPS_PROVIDER;
         this.curLocation = null;
         this.checkedLoc = false;
     }
@@ -99,14 +107,14 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
     			this.inspectionData = new InspectionData(this);
     			String[] policy = new String[]{this.extras.getString("policy")};
     			ContentValues values = new ContentValues();
-    			values.put(InspectionData.C_LAT, this.curLocation.getLatitude());
-    			//values.put(InspectionData.C_LAT, "44.601656");
-    			values.put(InspectionData.C_LONG, this.curLocation.getLongitude());
-    			//values.put(InspectionData.C_LONG, "-95.678194");
+    			String fixedLat = String.format("%1.6f",this.curLocation.getLatitude());
+    			String fixedLong = String.format("%1.6f",this.curLocation.getLongitude());
+    			values.put(InspectionData.C_LAT, fixedLat);
+    			values.put(InspectionData.C_LONG, fixedLong);
     			if(this.inspectionData.updateInspectionByPolicy(policy, values)){
     				startService(new Intent(this,SendCoords.class));
     				stopService(new Intent(this,SendCoords.class));
-    				Toast.makeText(this, "Inspection Updated", Toast.LENGTH_LONG).show();
+    				Toast.makeText(this,"Inspection Updated", Toast.LENGTH_LONG).show();
     			}
     			else{
     				Toast.makeText(this, "Please Try Again", Toast.LENGTH_LONG).show();
@@ -146,12 +154,10 @@ public class Inspection extends Activity implements LocationListener, OnClickLis
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { 
-    	startActivity(new Intent(this,InspectionList.class));
     	return true;
     }
 }

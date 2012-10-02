@@ -1,5 +1,7 @@
 package com.jimcloudy.updateinspectionloc;
 
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -16,14 +18,14 @@ public class InspectionData {
 	static final String C_NAME2 = "name2";	
 	static final String C_ADDRESS = "address";
 	static final String C_ADDRESS2 = "address2";
-	static final String C_CITY = "city";
-	static final String C_STATE = "state";
+	static final String C_CITYST = "cityst";
+	//static final String C_STATE = "state";
 	static final String C_PHONE = "phone";
 	static final String C_ZIP = "zip";
 	static final String C_LAT = "lat";
 	static final String C_LONG = "long";
 	private static final String GET_ALL_ORDER_BY = C_ID;
-	private static final String[] DB_TEXT_COLUMNS = { C_ID, C_NAME, C_NAME2, C_ADDRESS, C_ADDRESS2};
+	private static final String[] DB_TEXT_COLUMNS = { C_ID, C_NAME, C_NAME2, C_ADDRESS, C_ADDRESS2, C_CITYST, C_ZIP, C_PHONE};
 	
 	Context context;
 	
@@ -35,7 +37,7 @@ public class InspectionData {
 
 	    @Override
 	    public void onCreate(SQLiteDatabase db) {
-	      String sql = "CREATE TABLE inspections ( _id text primary key , name text, name2 text, address text, address2 text, lat text, long text );";
+	      String sql = "CREATE TABLE inspections ( _id text primary key , name text, name2 text, address text, address2 text, cityst text, zip text, phone text, lat text, long text );";
 	      db.execSQL(sql);
 	    }
 
@@ -70,7 +72,7 @@ public class InspectionData {
 	
 	public Cursor getInspections(){
 		SQLiteDatabase db = this.dbHelper.getReadableDatabase();
-		return db.query(TABLE, null, null, null, null, null, GET_ALL_ORDER_BY);
+		return db.query(TABLE, null, C_LAT + " is null and " + C_LONG + " is null", null, null, null, GET_ALL_ORDER_BY);
 	}
 	
 	public Cursor getUpdatedInspections(){
@@ -110,10 +112,14 @@ public class InspectionData {
 	    return flag;
 	  }
 	
-	public void deleteUpdatedInspections() {
+	public void deleteUpdatedInspections(List<String> policies) {
 	    SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 	    try {
-	    	db.delete(TABLE, C_LAT + " not null and " + C_LONG + " not null", null);
+	    	for(String policy : policies)
+	    	{
+	    		String[] arg = new String[]{policy};
+	    		db.delete(TABLE, C_ID + "=?", arg);
+	    	}
 	    } 
 	    catch(Exception e){
 	    	e.printStackTrace();
