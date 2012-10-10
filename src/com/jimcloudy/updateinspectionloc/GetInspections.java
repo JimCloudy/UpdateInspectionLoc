@@ -34,7 +34,7 @@ import android.telephony.TelephonyManager;
 public class GetInspections extends Service {
 	  private static final String TAG = "GetInspections";
 	  private InspectionsUpdater updater;
-	  public static String URL = "http://jimcloudy.comze.com/update.php?q=";
+	  public static String URL = "";
 	  HttpResponse result;
 	  static final int DELAY = 300000; 
 	  private boolean runFlag = false;
@@ -163,7 +163,7 @@ public class GetInspections extends Service {
 	    public String callWebService(String q){  
 	        HttpClient httpclient = new DefaultHttpClient();
 	        //HttpGet request = new HttpGet(URL + q);
-	        HttpPost request = new HttpPost("https://quote.nstarco.com/public/default.asp?Category=NS_Public_Test&Service=Inspections");
+	        HttpPost request = new HttpPost(URL);
 	        HttpEntity httpEntity;
 	        String line = null;
 	     
