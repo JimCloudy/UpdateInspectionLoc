@@ -42,7 +42,7 @@ import android.util.Xml;
 public class SendCoords extends Service {
 	  private static final String TAG = "SendCoords";
 	  private CoordsUpdater updater;
-	  public static String URL = "https://quote.nstarco.com/public/default.asp?Category=NS_Public_Test&Service=Update_Inspections";
+	  public static String URL = "";
 	  HttpResponse result;
 	  InspectionData inspectionData;
 
