@@ -1,15 +1,6 @@
 package com.jimcloudy.updateinspectionloc;
 
 import java.io.IOException;
-import java.io.StringReader;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,23 +9,19 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.app.Service;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.telephony.TelephonyManager;
+import android.util.Log;
 
 public class GetInspections extends Service {
 	  private static final String TAG = "GetInspections";
 	  private InspectionsUpdater updater;
-	  public static String URL = "";
+	  public static String URL = "http://jimcloudy.comze.com/update.php?q=";
 	  HttpResponse result;
 	  static final int DELAY = 300000; 
 	  private boolean runFlag = false;
@@ -81,74 +68,34 @@ public class GetInspections extends Service {
 	    @Override
 	    public void run() {
 	    	GetInspections getInspections = GetInspections.this;
-	    	String query = "hello";
 	    	String result = null;
-	    	XPath xpath = XPathFactory.newInstance().newXPath();
-	    	String expression;
-	    	TelephonyManager phone = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-	    	
 	    	
 	    	while(getInspections.runFlag){
 	    		try{
-	    			result = callWebService(phone.getLine1Number());
-	    			if(result != null)
-	    			{
-	    				Document doc = xmlFromString(result);	    				
-	    				expression = "/inspections/inspection";
-
+	    			result = callWebService();
+	    			if(result != null){
 	    				try{
-	    					NodeList resultNodes = (NodeList)xpath.evaluate(expression, doc ,XPathConstants.NODESET);
 	    					ContentValues values = new ContentValues();
-	    					for(int i=0; i<resultNodes.getLength(); i++){
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "policy";
-	    						Node node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						String content = node.getTextContent();
-	    						values.put(InspectionData.C_ID, content);
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "name1";
-	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						content = node.getTextContent();
-	    						values.put(InspectionData.C_NAME, content);
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "name2";
-	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						content = node.getTextContent();
-	    						values.put(InspectionData.C_NAME2, content);
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "address1";
-	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						content = node.getTextContent();
-	    						values.put(InspectionData.C_ADDRESS, content);
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "address2";
-	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						content = node.getTextContent();
-	    						values.put(InspectionData.C_ADDRESS2, content);
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "cityst";
-	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						content = node.getTextContent();
-	    						values.put(InspectionData.C_CITYST, content);
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "zip";
-	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						content = node.getTextContent();
-	    						values.put(InspectionData.C_ZIP, content);
-	    						xpath = XPathFactory.newInstance().newXPath();
-	    						expression = "phone";
-	    						node = (Node) xpath.evaluate(expression, resultNodes.item(i), XPathConstants.NODE);
-	    						content = node.getTextContent();
-	    						values.put(InspectionData.C_PHONE, content);
-	    						if(getInspections.inspectionData != null){
-	    							getInspections.inspectionData.insertOrIgnore(values);
-	    						}
+	    					JSONObject jsonObject = new JSONObject(result);
+	    					JSONArray inspections = jsonObject.getJSONArray("inspections");
+	    					Log.i("Get Inspections","Number of entries " + inspections.length());
+	    					JSONObject inspection = new JSONObject();
+	    					for (int i = 0; i < inspections.length(); i++) {
+	    				        inspection = inspections.getJSONObject(i);
+	    				        values.put(InspectionData.C_ID, inspection.getString("policy"));
+	    				        values.put(InspectionData.C_NAME, inspection.getString("name"));
+	    				        values.put(InspectionData.C_NAME2, inspection.getString("name2"));
+	    				        values.put(InspectionData.C_ADDRESS, inspection.getString("address"));
+	    				        values.put(InspectionData.C_ADDRESS2, inspection.getString("address2"));
+	    				        values.put(InspectionData.C_CITYST, inspection.getString("cityst"));
+	    				        values.put(InspectionData.C_ZIP, inspection.getString("zip"));
+	    				        values.put(InspectionData.C_PHONE, inspection.getString("phone"));
+	    				        if(getInspections.inspectionData != null){
+	    				        	getInspections.inspectionData.insertOrIgnore(values);
+	    				        }
 	    					}
 	    				}
-	    				catch(XPathExpressionException	e){
-	    					e.printStackTrace();
-	    				}
-	    				catch(RuntimeException e){
+	    				catch(Exception e){
 	    					e.printStackTrace();
 	    				}
 	    			}
@@ -160,10 +107,11 @@ public class GetInspections extends Service {
 	    	}
 	    }
 	    
-	    public String callWebService(String q){  
+	    public String callWebService(){  
 	        HttpClient httpclient = new DefaultHttpClient();
 	        //HttpGet request = new HttpGet(URL + q);
-	        HttpPost request = new HttpPost(URL);
+	        //HttpPost request = new HttpPost("https://quote.nstarco.com/public/default.asp?Category=NS_Public_Test&Service=Inspections");
+	        HttpPost request = new HttpPost("http://jimcloudy.comze.com/inspect/get_inspections.php");
 	        HttpEntity httpEntity;
 	        String line = null;
 	     
@@ -184,25 +132,6 @@ public class GetInspections extends Service {
 	        return line;
 	    }
 	    
-	    public Document xmlFromString(String xml){
-	    	Document doc = null;
-	    	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-	    	try {
-	    		DocumentBuilder db = dbf.newDocumentBuilder();
-	    	    InputSource is = new InputSource();
-	    	    is.setCharacterStream(new StringReader(xml));
-	    	    doc = db.parse(is);
-	    	} catch (ParserConfigurationException e) {
-	    	    System.out.println("XML parse error: " + e.getMessage());
-	    	    return null;
-	    	} catch (SAXException e) {
-	    	    System.out.println("Wrong XML file structure: " + e.getMessage());
-	    	    return null;
-	    	} catch (IOException e) {
-	    	    System.out.println("I/O exeption: " + e.getMessage());
-	    	    return null;
-	    	}
-	        return doc;
-	    }
+	   
 	  }   
 	}
