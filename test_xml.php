@@ -20,5 +20,11 @@
 	}
 	$xml .= "</inspections>";
 	
+	$xmlfile = "testfile.xml";
+	$FileHandle = fopen($xmlfile,'w');
+	fwrite($FileHandle, $xml);
+	fclose($FileHandle);
+
 	echo $xml;
+
 ?>

@@ -2,14 +2,42 @@
 	include("inspection_class.php");
 	include("include.php");
 
-	$xml = simplexml_load_file("http://jimcloudy.comze.com/inspect/test_xml.php");
+	$con = mysql_connect($mysql_host,$mysql_user,$mysql_password);
+	mysql_select_db($mysql_database,$con);
 
-	echo $xml->getName() . "<br>";
+	$datetime=date('ymdHis'); 
 
-	foreach($xml->children() as $child)
+	$xmlfile = "myfile" . $datetime . ".xml";
+	$FileHandle = fopen($xmlfile,'w');
+	fwrite($FileHandle, stripslashes($_POST['m-inspect']));
+	fclose($FileHandle);
+
+	$xml = new DOMDocument();
+	$xml->load($xmlfile);
+	
+	$returnXML = '<?xml version="1.0" encoding="UTF-8" ?><inspections>';
+	
+	$inspection = $xml->getElementsByTagName("inspection");
+	foreach ($inspection AS $item)
   	{
-  		echo $child->getName() . ": " . $child->name . "<br>";
+  		$hold = $item->getElementsByTagName("policy");
+  		$policy = $hold->item(0)->nodeValue;
+  		$hold = $item->getElementsByTagName("lat");
+  		$lat = $hold->item(0)->nodeValue;
+  		$hold = $item->getElementsByTagName("long");
+  		$long = $hold->item(0)->nodeValue;
+	
+		$query = "UPDATE inspections SET latitude='$lat',longitude='$long' WHERE policy='$policy'";
+		if(mysql_query($query)){
+			$returnXML .= "<inspection><policy>$policy</policy><updated>true</updated></inspection>";
+		}
   	}
 
+  	$returnXML .= "</inspections>";
+
+  	echo $returnXML;
+
+  	mysql_close($con);
+  	unlink($xmlfile);
 ?> 
 

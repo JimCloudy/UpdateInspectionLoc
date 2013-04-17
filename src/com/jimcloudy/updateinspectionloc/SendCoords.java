@@ -33,8 +33,10 @@ import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.util.Log;
 import android.util.Xml;
@@ -42,7 +44,7 @@ import android.util.Xml;
 public class SendCoords extends Service {
 	  private static final String TAG = "SendCoords";
 	  private CoordsUpdater updater;
-	  public static String URL = "https://quote.nstarco.com/public/default.asp?Category=NS_Public_Test&Service=Update_Inspections";
+	  public static String URL = "http://jimcloudy.comze.com/inspect/update_inspections.php";
 	  HttpResponse result;
 	  InspectionData inspectionData;
 
@@ -89,6 +91,10 @@ public class SendCoords extends Service {
 	    	if(query!=null)
 	    	{
 	    		result = callWebService(query);
+	    		int i = result.indexOf("<!--");
+	    		i--;
+	    		result = result.substring(0, i);
+	    		Log.i("send coords ",result);
 	    	}
 	    	
     		if(result != null)
@@ -137,7 +143,7 @@ public class SendCoords extends Service {
 	        HttpEntity httpEntity;
 	        String line = null;
 	        HttpResponse response;
-	     
+	        
 	        try{
 	        	List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(1);
 	        	nameValuePair.add(new BasicNameValuePair("m-inspect",q));
